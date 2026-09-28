@@ -1,3 +1,4 @@
+import os
 from typing import Optional, List, Dict
 from agents.agent import Agent
 from agents.deals import Deal, Opportunity
@@ -11,7 +12,7 @@ import json
 class AutonomousPlanningAgent(Agent):
     name = "Autonomous Planning Agent"
     color = Agent.GREEN
-    MODEL = "gpt-5.1"
+    MODEL = os.getenv("LOCAL_MODEL", "gemma-4-E4B-it-Q4_K_M")
 
     def __init__(self, collection):
         """

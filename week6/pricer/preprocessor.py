@@ -1,6 +1,11 @@
+import os
 from litellm import completion
+from dotenv import load_dotenv
 
-DEFAULT_MODEL_NAME = "groq/openai/gpt-oss-20b"
+load_dotenv(override=True)
+
+DEFAULT_MODEL_NAME = f"openai/{os.getenv('LOCAL_MODEL', 'gemma-4-E4B-it-Q4_K_M')}"
+# DEFAULT_MODEL_NAME = "groq/openai/gpt-oss-20b"
 DEFAULT_REASONING_EFFORT = "low"
 
 SYSTEM_PROMPT = """Create a concise description of a product. Respond only in this format. Do not include part numbers.
@@ -29,5 +34,5 @@ class Preprocessor:
         )
         self.total_input_tokens += response.usage.prompt_tokens
         self.total_output_tokens += response.usage.completion_tokens
-        self.total_cost += response._hidden_params["response_cost"]
+        self.total_cost += response._hidden_params["response_cost"] or 0  # None for local models
         return response.choices[0].message.content

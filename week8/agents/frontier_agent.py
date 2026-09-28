@@ -1,3 +1,4 @@
+import os
 import re
 from typing import List, Dict
 from openai import OpenAI
@@ -9,7 +10,7 @@ class FrontierAgent(Agent):
     name = "Frontier Agent"
     color = Agent.BLUE
 
-    MODEL = "gpt-4o-mini"
+    MODEL = os.getenv("LOCAL_MODEL", "gemma-4-E4B-it-Q4_K_M")
 
     def __init__(self, collection):
         """
@@ -17,9 +18,9 @@ class FrontierAgent(Agent):
         And setting up the vector encoding model
         """
         self.log("Initializing Frontier Agent")
-        self.client = OpenAI()
-        self.MODEL = "gpt-5.1"
-        self.log("Frontier Agent is setting up with OpenAI")
+        self.client = OpenAI()  # uses OPENAI_BASE_URL from .env -> local llama.cpp server
+        self.MODEL = os.getenv("LOCAL_MODEL", "gemma-4-E4B-it-Q4_K_M")
+        self.log(f"Frontier Agent is setting up with local model {self.MODEL}")
         self.collection = collection
         self.model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
         self.log("Frontier Agent is ready")

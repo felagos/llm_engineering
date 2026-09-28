@@ -1,3 +1,4 @@
+import os
 from typing import Optional, List
 from openai import OpenAI
 from agents.deals import ScrapedDeal, DealSelection
@@ -5,7 +6,7 @@ from agents.agent import Agent
 
 
 class ScannerAgent(Agent):
-    MODEL = "gpt-5-mini"
+    MODEL = os.getenv("LOCAL_MODEL", "gemma-4-E4B-it-Q4_K_M")
 
     SYSTEM_PROMPT = """You identify and summarize the 5 most detailed deals from a list, by selecting deals that have the most detailed, high quality description and the most clear price.
     Respond strictly in JSON with no explanation, using this format. You should provide the price as a number derived from the description. If the price of a deal isn't clear, do not include that deal in your response.

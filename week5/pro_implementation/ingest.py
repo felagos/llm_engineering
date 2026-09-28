@@ -1,5 +1,6 @@
+import os
 from pathlib import Path
-from openai import OpenAI
+from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from chromadb import PersistentClient
@@ -11,19 +12,17 @@ from tenacity import retry, wait_exponential
 
 load_dotenv(override=True)
 
-MODEL = "openai/gpt-4.1-nano"
+MODEL = f"openai/{os.getenv('LOCAL_MODEL', 'gemma-4-E4B-it-Q4_K_M')}"
 
 DB_NAME = str(Path(__file__).parent.parent / "preprocessed_db")
 collection_name = "docs"
-embedding_model = "text-embedding-3-large"
+embedding_model = "all-MiniLM-L6-v2"  # local embeddings (the llama.cpp chat model can't produce embeddings)
 KNOWLEDGE_BASE_PATH = Path(__file__).parent.parent / "knowledge-base"
 AVERAGE_CHUNK_SIZE = 100
 wait = wait_exponential(multiplier=1, min=10, max=240)
 
 
 WORKERS = 3
-
-openai = OpenAI()
 
 
 class Result(BaseModel):
@@ -127,8 +126,7 @@ def create_embeddings(chunks):
         chroma.delete_collection(collection_name)
 
     texts = [chunk.page_content for chunk in chunks]
-    emb = openai.embeddings.create(model=embedding_model, input=texts).data
-    vectors = [e.embedding for e in emb]
+    vectors = SentenceTransformer(embedding_model).encode(texts).tolist()
 
     collection = chroma.get_or_create_collection(collection_name)
 
